@@ -30,6 +30,9 @@ ENEMY_SPAWN_RATE = 45
 
 PLAYER_WIDTH = 32
 PLAYER_HEIGHT = 32
+BULLET_WIDTH = 4
+BULLET_HEIGHT = 10
+SHOOT_COOLDOWN = 15
 
 
 class Player:
@@ -65,3 +68,25 @@ class Player:
             (self.rect.right - 4, self.rect.top + 8),
         ]
         pygame.draw.polygon(surface, YELLOW, points)
+
+    def shoot(self):
+        """Create a bullet at the player's position."""
+        return Bullet(self.rect.centerx, self.rect.top)
+
+
+class Bullet:
+    """Bullet that moves upward."""
+
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(
+            x - BULLET_WIDTH // 2, y, BULLET_WIDTH, BULLET_HEIGHT
+        )
+
+    def update(self):
+        self.rect.y -= BULLET_SPEED
+
+    def off_screen(self):
+        return self.rect.bottom < 0
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, YELLOW, self.rect)
