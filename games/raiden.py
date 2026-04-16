@@ -113,3 +113,31 @@ class Enemy:
         # Draw an X marking on the enemy
         pygame.draw.line(surface, WHITE, self.rect.topleft, self.rect.bottomright, 2)
         pygame.draw.line(surface, WHITE, self.rect.topright, self.rect.bottomleft, 2)
+
+SCORE_PER_KILL = 100
+
+
+def check_collisions(player, bullets, enemies):
+    """Returns (score_gained, game_over)."""
+    score, hit_b, hit_e = 0, set(), set()
+    for i, b in enumerate(bullets):
+        for j, e in enumerate(enemies):
+            if b.rect.colliderect(e.rect):
+                hit_b.add(i); hit_e.add(j); score += SCORE_PER_KILL
+    for i in sorted(hit_b, reverse=True): bullets.pop(i)
+    for j in sorted(hit_e, reverse=True): enemies.pop(j)
+    return score, any(e.rect.colliderect(player.rect) for e in enemies)
+
+
+def draw_game_over(surface, score):
+    """Draw the game over screen."""
+    font_big = pygame.font.SysFont(None, 64)
+    font_sm = pygame.font.SysFont(None, 32)
+    surface.fill(BLACK)
+    go = font_big.render("GAME OVER", True, RED)
+    sc = font_sm.render(f"Score: {score}", True, WHITE)
+    rs = font_sm.render("Press R to restart", True, YELLOW)
+    cx = SCREEN_WIDTH // 2
+    surface.blit(go, (cx - go.get_width() // 2, 240))
+    surface.blit(sc, (cx - sc.get_width() // 2, 320))
+    surface.blit(rs, (cx - rs.get_width() // 2, 380))
