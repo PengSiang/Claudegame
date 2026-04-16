@@ -30,6 +30,8 @@ ENEMY_SPAWN_RATE = 45
 
 PLAYER_WIDTH = 32
 PLAYER_HEIGHT = 32
+ENEMY_WIDTH = 28
+ENEMY_HEIGHT = 28
 BULLET_WIDTH = 4
 BULLET_HEIGHT = 10
 SHOOT_COOLDOWN = 15
@@ -90,3 +92,24 @@ class Bullet:
 
     def draw(self, surface):
         pygame.draw.rect(surface, YELLOW, self.rect)
+
+
+class Enemy:
+    """Enemy ship that spawns at top and moves downward."""
+
+    def __init__(self):
+        x = random.randint(0, SCREEN_WIDTH - ENEMY_WIDTH)
+        self.rect = pygame.Rect(x, -ENEMY_HEIGHT, ENEMY_WIDTH, ENEMY_HEIGHT)
+        self.speed = ENEMY_SPEED + random.uniform(0, 1.5)
+
+    def update(self):
+        self.rect.y += self.speed
+
+    def off_screen(self):
+        return self.rect.top > SCREEN_HEIGHT
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, RED, self.rect)
+        # Draw an X marking on the enemy
+        pygame.draw.line(surface, WHITE, self.rect.topleft, self.rect.bottomright, 2)
+        pygame.draw.line(surface, WHITE, self.rect.topright, self.rect.bottomleft, 2)
