@@ -141,3 +141,66 @@ def draw_game_over(surface, score):
     surface.blit(go, (cx - go.get_width() // 2, 240))
     surface.blit(sc, (cx - sc.get_width() // 2, 320))
     surface.blit(rs, (cx - rs.get_width() // 2, 380))
+
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption(TITLE)
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 28)
+
+    player = Player()
+    bullets = []
+    enemies = []
+    score = 0
+    shoot_timer = 0
+    spawn_timer = 0
+    game_over = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and game_over and event.key == pygame.K_r:
+                return main()
+
+        if not game_over:
+            keys = pygame.key.get_pressed()
+            player.update()
+
+            shoot_timer += 1
+            if keys[pygame.K_SPACE] and shoot_timer >= SHOOT_COOLDOWN:
+                bullets.append(player.shoot())
+                shoot_timer = 0
+
+            spawn_timer += 1
+            if spawn_timer >= ENEMY_SPAWN_RATE:
+                enemies.append(Enemy())
+                spawn_timer = 0
+
+            for b in bullets: b.update()
+            for e in enemies: e.update()
+            bullets[:] = [b for b in bullets if not b.off_screen()]
+            enemies[:] = [e for e in enemies if not e.off_screen()]
+
+            gained, game_over = check_collisions(player, bullets, enemies)
+            score += gained
+
+        if game_over:
+            draw_game_over(screen, score)
+        else:
+            screen.fill(BLACK)
+            player.draw(screen)
+            for b in bullets: b.draw(screen)
+            for e in enemies: e.draw(screen)
+            score_text = font.render(f"Score: {score}", True, WHITE)
+            screen.blit(score_text, (10, 10))
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+if __name__ == "__main__":
+    main()
